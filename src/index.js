@@ -1,5 +1,6 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4, isUuid } = require('uuid');
+const isuuid = require('isuuid');
 const app = express();
 
 app.use(express.json());
@@ -13,7 +14,14 @@ function logRequests(request, response, next){
   return next();
 }
 
+function validateProjectId(request, response, next){
+  const { id } = request.params;
+  if(!isuuid(id)) return response.status(400).json({error: "Invalid project ID"});
+  return next();
+} 
+
 app.use(logRequests);
+app.use('/projects/:id', validateProjectId);
 
 //rota get/pegar
 app.get('/projects', (request, response) => {
